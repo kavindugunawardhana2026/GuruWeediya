@@ -21,19 +21,25 @@ import Badge from "@/components/ui/Badge";
 import type { Teacher, Job } from "@/types/database";
 import { DAYS_OF_WEEK, TIME_SLOTS } from "@/lib/constants";
 import { inviteTeacher } from "../actions";
+import MOUGeneratorModal from "@/components/MOUGeneratorModal";
+import ReviewSection from "@/components/ReviewSection";
+import type { ReviewWithInstitute } from "@/types/database";
 
 interface Props {
   teacher: Teacher;
   instituteJobs: Job[];
+  reviews: ReviewWithInstitute[];
   isInstitute: boolean;
 }
 
 export default function TeacherProfileClient({
   teacher,
   instituteJobs,
+  reviews,
   isInstitute,
 }: Props) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isMOUModalOpen, setIsMOUModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string>("");
   const [inviteResult, setInviteResult] = useState<{ success?: boolean; error?: string; message?: string } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -106,13 +112,22 @@ export default function TeacherProfileClient({
               </div>
               
               {isInstitute && (
-                <Button 
-                  onClick={() => setIsInviteModalOpen(true)}
-                  leftIcon={<CalendarCheck className="h-4 w-4" />}
-                  className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 hover:border-emerald-500/50"
-                >
-                  Invite to Interview
-                </Button>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => setIsMOUModalOpen(true)}
+                    leftIcon={<FileText className="h-4 w-4" />}
+                    variant="outline"
+                  >
+                    Generate MOU
+                  </Button>
+                  <Button 
+                    onClick={() => setIsInviteModalOpen(true)}
+                    leftIcon={<CalendarCheck className="h-4 w-4" />}
+                    className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 hover:border-emerald-500/50"
+                  >
+                    Invite to Interview
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -319,6 +334,15 @@ export default function TeacherProfileClient({
         </div>
       </div>
 
+      {/* ─── Reviews & Ratings ───────────────────────────────── */}
+      <div className="mt-12">
+        <ReviewSection 
+          teacherId={teacher.id} 
+          reviews={reviews} 
+          isInstitute={isInstitute} 
+        />
+      </div>
+
       {/* ─── Invite to Interview Modal ───────────────────────── */}
       {isInviteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
@@ -398,6 +422,12 @@ export default function TeacherProfileClient({
           </div>
         </div>
       )}
+      {/* ─── MOU Generator Modal ───────────────────────────── */}
+      <MOUGeneratorModal 
+        isOpen={isMOUModalOpen} 
+        onClose={() => setIsMOUModalOpen(false)} 
+        teacherName={teacher.full_name} 
+      />
     </div>
   );
 }

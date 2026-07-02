@@ -65,10 +65,18 @@ export default async function TeacherProfilePage({ params }: PageProps) {
     }
   }
 
+  // Fetch reviews for this teacher
+  const { data: reviews } = await (supabase as any)
+    .from("reviews")
+    .select("*, institute:institutes(institute_name)")
+    .eq("teacher_id", resolvedParams.id)
+    .order("created_at", { ascending: false });
+
   return (
     <TeacherProfileClient 
       teacher={teacher as Teacher} 
       instituteJobs={instituteJobs} 
+      reviews={reviews || []}
       isInstitute={user?.role === "institute"}
     />
   );
