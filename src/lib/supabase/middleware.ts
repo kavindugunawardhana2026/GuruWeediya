@@ -1,9 +1,13 @@
 // ============================================================
-// GuruWeediya.lk — Supabase Middleware Client
+// GuruWeediya.lk — Supabase Proxy Helper (formerly middleware)
 // ============================================================
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/**
+ * Refresh the Supabase session and propagate cookies.
+ * Called from proxy.ts (Next.js 16 renamed middleware → proxy).
+ */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,

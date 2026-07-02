@@ -31,6 +31,7 @@ export interface Teacher {
   youtube_demo_url: string | null;
   profile_image_url: string | null;
   phone: string | null;
+  availability: Record<string, string[]>;
   is_verified: boolean;
   verification_status: VerificationStatus;
   created_at: string;
@@ -81,6 +82,20 @@ export interface Interview {
   updated_at: string;
 }
 
+export type DocumentStatus = "pending_review" | "approved" | "rejected";
+
+export interface TeacherDocument {
+  id: string;
+  user_id: string;
+  doc_type: "nic" | "certificate";
+  file_path: string;
+  status: DocumentStatus;
+  notes: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ─── Insert Types (omit auto-generated fields) ──────────────
 
 export type UserInsert = Omit<User, "id" | "created_at" | "updated_at">;
@@ -96,6 +111,7 @@ export type TeacherUpdate = Partial<Omit<Teacher, "id" | "user_id" | "created_at
 export type InstituteUpdate = Partial<Omit<Institute, "id" | "user_id" | "created_at">>;
 export type JobUpdate = Partial<Omit<Job, "id" | "institute_id" | "created_at">>;
 export type InterviewUpdate = Partial<Omit<Interview, "id" | "created_at">>;
+export type TeacherDocumentInsert = Omit<TeacherDocument, "id" | "created_at" | "updated_at" | "reviewed_at">;
 
 // ─── Join Types (for queries with relations) ─────────────────
 
@@ -146,6 +162,11 @@ export interface Database {
         Row: Interview;
         Insert: InterviewInsert;
         Update: InterviewUpdate;
+      };
+      teacher_documents: {
+        Row: TeacherDocument;
+        Insert: TeacherDocumentInsert;
+        Update: Partial<TeacherDocumentInsert>;
       };
     };
   };
