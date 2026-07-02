@@ -59,6 +59,7 @@ export interface Job {
   title: string;
   subject: string;
   medium: string;
+  class_category: string;
   description: string | null;
   location: string | null;
   district: string | null;
