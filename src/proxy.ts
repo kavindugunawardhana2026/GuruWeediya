@@ -75,7 +75,7 @@ export async function proxy(request: NextRequest) {
       .single();
 
     // @ts-ignore - Supabase type inference issue
-    const role = (userData as any)?.role;
+    const role = (userData as any)?.role || "teacher";
 
     // Prevent teachers from accessing institute routes and vice versa
     if (pathname.startsWith("/teacher") && role !== "teacher" && role !== "admin") {
