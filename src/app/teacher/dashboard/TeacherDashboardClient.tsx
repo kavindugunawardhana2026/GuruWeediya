@@ -38,10 +38,12 @@ interface Props {
   teacherId: string;
   initialProfile: TeacherProfile;
   userEmail: string;
+  initialApplications: any[];
 }
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "applications", label: "Applications", icon: Briefcase },
   { id: "profile", label: "Edit Profile", icon: User },
   { id: "documents", label: "Documents", icon: FileText },
   { id: "availability", label: "Availability", icon: CalendarCheck },
@@ -53,6 +55,7 @@ export default function TeacherDashboardClient({
   teacherId,
   initialProfile,
   userEmail,
+  initialApplications,
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [profile, setProfile] = useState<TeacherProfile>(initialProfile);
@@ -252,6 +255,60 @@ export default function TeacherDashboardClient({
               </Card>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* APPLICATIONS TAB */}
+      {activeTab === "applications" && (
+        <div className="animate-fade-in space-y-4">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white mb-1">My Applications</h2>
+            <p className="text-sm text-slate-400">Track the status of jobs you have applied to.</p>
+          </div>
+
+          {initialApplications.length === 0 ? (
+            <Card>
+              <div className="text-center py-8">
+                <Briefcase className="h-12 w-12 text-slate-700 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">No applications yet</h3>
+                <p className="text-slate-400 text-sm mb-4">You haven't applied to any jobs.</p>
+                <a href="/jobs" className="text-emerald-400 hover:text-emerald-300 text-sm font-medium">Browse Jobs &rarr;</a>
+              </div>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {initialApplications.map((app) => (
+                <Card key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+                      {app.job.institute.logo_url ? (
+                        <img src={app.job.institute.logo_url} alt="Logo" className="h-full w-full object-cover" />
+                      ) : (
+                        <Briefcase className="h-5 w-5 text-slate-500" />
+                      )}
+                    </div>
+                    <div>
+                      <a href={`/jobs/${app.job.id}`} className="text-lg font-bold text-white hover:text-emerald-400 transition-colors">
+                        {app.job.title}
+                      </a>
+                      <p className="text-sm text-slate-400">{app.job.institute.institute_name}</p>
+                      <p className="text-xs text-slate-500 mt-1">Applied on {new Date(app.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Badge variant={
+                      app.status === 'hired' ? 'success' :
+                      app.status === 'shortlisted' ? 'info' :
+                      app.status === 'rejected' ? 'error' :
+                      app.status === 'interviewed' ? 'warning' : 'default'
+                    }>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -29,12 +29,14 @@ interface Props {
   userEmail: string;
   jobs: (Job & { interview_count?: number })[];
   interviews: InterviewWithDetails[];
+  initialApplications: any[];
 }
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "post_job", label: "Post a Job", icon: Plus },
   { id: "vacancies", label: "Active Vacancies", icon: Briefcase },
+  { id: "applications", label: "Applications", icon: Users },
   { id: "interviews", label: "Interviews", icon: CalendarCheck },
 ] as const;
 
@@ -45,11 +47,12 @@ export default function InstituteDashboardClient({
   userEmail,
   jobs,
   interviews,
+  initialApplications,
 }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   const openJobs = jobs.filter((j) => j.status === "open").length;
-  const totalApplications = jobs.reduce((acc, job) => acc + (job.interview_count || 0), 0);
+  const totalApplications = initialApplications.length;
   const upcomingInterviews = interviews.filter((i) => i.status === "accepted" || i.status === "pending").length;
 
   return (
@@ -232,6 +235,67 @@ export default function InstituteDashboardClient({
       {/* INTERVIEWS TAB */}
       {activeTab === "interviews" && (
         <InterviewTracker interviews={interviews} />
+      )}
+
+      {/* APPLICATIONS TAB */}
+      {activeTab === "applications" && (
+        <div className="animate-fade-in space-y-4">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white mb-1">Incoming Applications</h2>
+            <p className="text-sm text-slate-400">Review teachers who have applied to your open jobs.</p>
+          </div>
+
+          {initialApplications.length === 0 ? (
+            <Card>
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 text-slate-700 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-white mb-2">No applications yet</h3>
+                <p className="text-slate-400 text-sm">When teachers apply to your jobs, they will appear here.</p>
+              </div>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {initialApplications.map((app) => (
+                <Card key={app.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+                      {app.teacher.profile_image_url ? (
+                        <img src={app.teacher.profile_image_url} alt="Profile" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="font-bold text-slate-400">{getInitials(app.teacher.full_name)}</span>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">{app.teacher.full_name}</h3>
+                      <p className="text-sm text-emerald-400 font-medium">Applied for: {app.job.title}</p>
+                      {app.cover_message && (
+                        <div className="mt-3 p-3 bg-slate-900 rounded-lg text-sm text-slate-300 border border-slate-800">
+                          "{app.cover_message}"
+                        </div>
+                      )}
+                      <p className="text-xs text-slate-500 mt-2">Applied on {new Date(app.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                    <Badge variant={
+                      app.status === 'hired' ? 'success' :
+                      app.status === 'shortlisted' ? 'info' :
+                      app.status === 'rejected' ? 'error' :
+                      app.status === 'interviewed' ? 'warning' : 'default'
+                    }>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </Badge>
+                    <div className="flex gap-2 mt-2">
+                      <a href={`/messages?user=${app.teacher.user_id}`} className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 text-xs font-medium transition-colors">
+                        Message
+                      </a>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

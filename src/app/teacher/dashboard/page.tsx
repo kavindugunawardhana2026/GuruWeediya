@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/actions";
 import TeacherDashboardClient from "./TeacherDashboardClient";
+import { getMyApplications } from "@/lib/actions/applications";
 
 export const metadata = {
   title: "Teacher Dashboard | GuruWeediya.lk",
@@ -15,6 +16,7 @@ export default async function TeacherDashboard() {
   }
 
   const teacher = user.profile as any;
+  const { applications } = await getMyApplications();
 
   return (
     <TeacherDashboardClient
@@ -34,6 +36,7 @@ export default async function TeacherDashboard() {
         verification_status: teacher?.verification_status || "pending",
       }}
       userEmail={user.email || ""}
+      initialApplications={applications || []}
     />
   );
 }

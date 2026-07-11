@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 import InstituteDashboardClient from "./InstituteDashboardClient";
+import { getInstituteApplications } from "@/lib/actions/applications";
 
 export const metadata = {
   title: "Institute Dashboard | GuruWeediya.lk",
@@ -56,6 +57,9 @@ export default async function InstituteDashboard() {
     .eq("institute_id", institute.id)
     .order("created_at", { ascending: false });
 
+  // Fetch applications
+  const { applications } = await getInstituteApplications();
+
   return (
     <InstituteDashboardClient
       institute={{
@@ -66,6 +70,7 @@ export default async function InstituteDashboard() {
       userEmail={user.email || ""}
       jobs={jobs as any}
       interviews={interviewsData as any}
+      initialApplications={applications || []}
     />
   );
 }
