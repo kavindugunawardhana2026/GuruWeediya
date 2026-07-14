@@ -52,7 +52,7 @@ export default async function TeachersPage({ searchParams }: PageProps) {
   const { data: teachers, error } = await query;
 
   if (error) {
-    throw new Error(error.message || JSON.stringify(error));
+    console.error("Error fetching teachers:", error);
   }
 
   return <TeacherDirectoryClient teachers={(teachers as Teacher[]) || []} />;
